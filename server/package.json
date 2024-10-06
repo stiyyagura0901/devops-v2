@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "clean": "rm -rf dist",
+    "build": "yarn clean && babel ./src --out-dir dist --copy-files",
     "dev-babel": "nodemon --exec babel-node -r ./src/index.js",
     "dev-lint": "nodemon --exec 'yarn run lint' ./src/index.js",
     "lint": "eslint ./",
