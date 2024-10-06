@@ -9,6 +9,7 @@ module.exports = {
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly',
   },
+  ignorePatterns: ['dist/**/*'],
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: 'module',
