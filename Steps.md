@@ -16,4 +16,4 @@ add to package json scripts
 
 ## Dockerize
 
-
+rest can be followed on commits
