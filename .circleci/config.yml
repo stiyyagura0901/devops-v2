@@ -47,11 +47,10 @@ jobs:
           name: Lint
           command: yarn lint
       - run:
-          name: Install JUnit coverage reporter
-          command: yarn add --dev jest-junit
-      - run:
-          name: Run tests with JUnit as reporter
-          command: jest --ci --runInBand --reporters=default --reporters=jest-junit
+          name: Install JUnit coverage reporter and Run tests
+          command: |
+            yarn add --dev jest-junit
+            jest --ci --runInBand --reporters=default --reporters=jest-junit
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
             JEST_JUNIT_ADD_FILE_ATTRIBUTE: "true"
@@ -60,6 +59,7 @@ jobs:
       - run:
           name: Build
           command: yarn build
+      - setup_remote_docker
       - run:
           name: Build and Publish Docker Image
           command: docker build -t server . && echo "Image built and published"
@@ -80,7 +80,6 @@ workflows:
       # - deploy-server:
       #     requires:
       #       - lint-test-build-server
-
 # version: '2.1'
 
 # setup: true
