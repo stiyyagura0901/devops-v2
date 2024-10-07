@@ -23,12 +23,16 @@ jobs:
           name: lint test and build
           command: |
             # Install dependencies
+            echo "Installing dependencies"
             yarn install
             # Lint
+            echo "Linting"
             yarn lint
-            # Build
+            # Build client
+            echo "Building client"
             yarn build
             # Build and Publish Docker Image
+            echo "Building and publishing image"
             docker build -t client . && echo "Image built and published"
 
   # deploy-client:
@@ -42,16 +46,27 @@ jobs:
           path: ~/challenge
       - setup_remote_docker
       - run:
+          name: Install dependencies
+          command: yarn install
+      - run:
           name: lint test and build
           command: |
+            # Install dependencies
+            echo "Installing dependencies"
             yarn install
+            # Lint
+            echo "Linting"
             yarn lint
             # Install JUnit coverage reporter and Run tests
+            echo "Running tests"
             yarn add --dev jest-junit
-            jest --ci --runInBand --reporters=default --reporters=jest-junit
-            # Build
+            # Run tests
+            yarn test:ci
+            # Build server
+            echo "Building server"
             yarn build
             # Build and Publish Docker Image
+            echo "Building and publishing image"
             docker build -t server . && echo "Image built and published"
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/

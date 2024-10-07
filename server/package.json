@@ -9,7 +9,8 @@
     "dev-babel": "nodemon --exec babel-node -r ./src/index.js",
     "dev-lint": "nodemon --exec 'yarn run lint' ./src/index.js",
     "lint": "eslint ./",
-    "test": "jest --detectOpenHandles"
+    "test": "jest --detectOpenHandles",
+    "test:ci": "jest --ci --runInBand --reporters=default --reporters=jest-junit"
   },
   "author": "",
   "license": "ISC",
