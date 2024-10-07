@@ -1,0 +1,100 @@
+version: "2.1"
+
+node-image: &node-image cimg/node:18.17.0
+
+parameters:
+  client:
+    type: boolean
+    default: false
+  server:
+    type: boolean
+    default: false
+
+jobs:
+  lint-test-build-client:
+    docker:
+      - image: *node-image
+    working_directory: ~/challenge/client
+    steps:
+      - checkout:
+          path: ~/challenge
+      - run:
+          name: Install dependencies
+          command: yarn install
+      - run:
+          name: Lint
+          command: yarn lint
+      - run:
+          name: Build
+          command: yarn build
+      - run:
+          name: Build and Publish Docker Image
+          command: docker build -t client . && echo "Image built and published"
+
+  # deploy-client:
+
+  lint-test-build-server:
+    docker:
+      - image: *node-image
+    working_directory: ~/challenge/server
+    steps:
+      - checkout:
+          path: ~/challenge
+      - run:
+          name: Install dependencies
+          command: yarn install
+      - run:
+          name: Lint
+          command: yarn lint
+      - run:
+          name: Install JUnit coverage reporter
+          command: yarn add --dev jest-junit
+      - run:
+          name: Run tests with JUnit as reporter
+          command: jest --ci --runInBand --reporters=default --reporters=jest-junit
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+            JEST_JUNIT_ADD_FILE_ATTRIBUTE: "true"
+      - store_test_results:
+          path: ./reports/
+      - run:
+          name: Build
+          command: yarn build
+      - run:
+          name: Build and Publish Docker Image
+          command: docker build -t server . && echo "Image built and published"
+  # deploy-server:
+
+workflows:
+  build-test-deploy-client:
+    # when: << pipeline.parameters.client >>
+    jobs:
+      - lint-test-build-client
+      # - deploy-client:
+      #     requires:
+      #       - lint-test-build-client
+  build-test-deploy-server:
+    # when: << pipeline.parameters.server >>
+    jobs:
+      - lint-test-build-server
+      # - deploy-server:
+      #     requires:
+      #       - lint-test-build-server
+
+# version: '2.1'
+
+# setup: true
+
+# orbs:
+#   path-filtering: circleci/path-filtering@1.1.0
+
+# workflows:
+#   generate-config:
+#     jobs:
+#       - path-filtering/filter:
+#           mapping: client/* client true server/* server true
+#           config-path: .circleci/continue_config.yml
+#           filters:
+#             branches:
+#               only: main
+
