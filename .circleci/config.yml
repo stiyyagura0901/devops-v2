@@ -18,18 +18,18 @@ jobs:
     steps:
       - checkout:
           path: ~/challenge
+      - setup_remote_docker
       - run:
-          name: Install dependencies
-          command: yarn install
-      - run:
-          name: Lint
-          command: yarn lint
-      - run:
-          name: Build
-          command: yarn build
-      - run:
-          name: Build and Publish Docker Image
-          command: docker build -t client . && echo "Image built and published"
+          name: lint test and build
+          command: |
+            # Install dependencies
+            yarn install
+            # Lint
+            yarn lint
+            # Build
+            yarn build
+            # Build and Publish Docker Image
+            docker build -t client . && echo "Image built and published"
 
   # deploy-client:
 
@@ -40,29 +40,25 @@ jobs:
     steps:
       - checkout:
           path: ~/challenge
+      - setup_remote_docker
       - run:
-          name: Install dependencies
-          command: yarn install
-      - run:
-          name: Lint
-          command: yarn lint
-      - run:
-          name: Install JUnit coverage reporter and Run tests
+          name: lint test and build
           command: |
+            yarn install
+            yarn lint
+            # Install JUnit coverage reporter and Run tests
             yarn add --dev jest-junit
             jest --ci --runInBand --reporters=default --reporters=jest-junit
+            # Build
+            yarn build
+            # Build and Publish Docker Image
+            docker build -t server . && echo "Image built and published"
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
             JEST_JUNIT_ADD_FILE_ATTRIBUTE: "true"
       - store_test_results:
           path: ./reports/
-      - run:
-          name: Build
-          command: yarn build
-      - setup_remote_docker
-      - run:
-          name: Build and Publish Docker Image
-          command: docker build -t server . && echo "Image built and published"
+
   # deploy-server:
 
 workflows:
