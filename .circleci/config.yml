@@ -1,5 +1,8 @@
 version: "2.1"
 
+orbs:
+  cypress: cypress-io/cypress@3.4.0
+
 node-image: &node-image cimg/node:18.17.0
 
 parameters:
@@ -11,7 +14,7 @@ parameters:
     default: false
 
 jobs:
-  lint-test-build-client:
+  lint-build-client:
     docker:
       - image: *node-image
     working_directory: ~/challenge/client
@@ -80,17 +83,23 @@ workflows:
   build-test-deploy-client:
     # when: << pipeline.parameters.client >>
     jobs:
-      - lint-test-build-client
+      - cypress/run:
+          name: Run Cypress tests
+          package-manager: yarn
+          working-directory: ./client
+          start-command: yarn dev
+          node-version: 18.17.0
+      - lint-build-client
       # - deploy-client:
       #     requires:
       #       - lint-test-build-client
-  build-test-deploy-server:
-    # when: << pipeline.parameters.server >>
-    jobs:
-      - lint-test-build-server
-      # - deploy-server:
-      #     requires:
-      #       - lint-test-build-server
+  # build-test-deploy-server:
+  #   # when: << pipeline.parameters.server >>
+  #   jobs:
+  #     - lint-test-build-server
+  #     # - deploy-server:
+  #     #     requires:
+  #     #       - lint-test-build-server
 # version: '2.1'
 
 # setup: true

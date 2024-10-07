@@ -18,18 +18,22 @@ jobs:
     steps:
       - checkout:
           path: ~/challenge
+      - setup_remote_docker
       - run:
-          name: Install dependencies
-          command: yarn install
-      - run:
-          name: Lint
-          command: yarn lint
-      - run:
-          name: Build
-          command: yarn build
-      - run:
-          name: Build and Publish Docker Image
-          command: docker build -t client . && echo "Image built and published"
+          name: lint test and build
+          command: |
+            # Install dependencies
+            echo "Installing dependencies"
+            yarn install
+            # Lint
+            echo "Linting"
+            yarn lint
+            # Build client
+            echo "Building client"
+            yarn build
+            # Build and Publish Docker Image
+            echo "Building and publishing image"
+            docker build -t client . && echo "Image built and published"
 
   # deploy-client:
 
@@ -40,41 +44,48 @@ jobs:
     steps:
       - checkout:
           path: ~/challenge
+      - setup_remote_docker
       - run:
           name: Install dependencies
           command: yarn install
       - run:
-          name: Lint
-          command: yarn lint
-      - run:
-          name: Install JUnit coverage reporter
-          command: yarn add --dev jest-junit
-      - run:
-          name: Run tests with JUnit as reporter
-          command: jest --ci --runInBand --reporters=default --reporters=jest-junit
+          name: lint test and build
+          command: |
+            # Install dependencies
+            echo "Installing dependencies"
+            yarn install
+            # Lint
+            echo "Linting"
+            yarn lint
+            # Install JUnit coverage reporter and Run tests
+            echo "Running tests"
+            yarn add --dev jest-junit
+            # Run tests
+            yarn test:ci
+            # Build server
+            echo "Building server"
+            yarn build
+            # Build and Publish Docker Image
+            echo "Building and publishing image"
+            docker build -t server . && echo "Image built and published"
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
             JEST_JUNIT_ADD_FILE_ATTRIBUTE: "true"
       - store_test_results:
           path: ./reports/
-      - run:
-          name: Build
-          command: yarn build
-      - run:
-          name: Build and Publish Docker Image
-          command: docker build -t server . && echo "Image built and published"
+
   # deploy-server:
 
 workflows:
   build-test-deploy-client:
-    when: << pipeline.parameters.client >>
+    # when: << pipeline.parameters.client >>
     jobs:
       - lint-test-build-client
       # - deploy-client:
       #     requires:
       #       - lint-test-build-client
   build-test-deploy-server:
-    when: << pipeline.parameters.server >>
+    # when: << pipeline.parameters.server >>
     jobs:
       - lint-test-build-server
       # - deploy-server:
