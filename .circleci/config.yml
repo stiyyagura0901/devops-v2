@@ -88,6 +88,7 @@ workflows:
           package-manager: yarn
           working-directory: ./client
           start-command: yarn dev
+          cypress-command: yarn test
           node-version: 18.17.0
       - lint-build-client
       # - deploy-client:
